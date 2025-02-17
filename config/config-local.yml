@@ -1,0 +1,25 @@
+server:
+  AppVersion: 1.0.0
+  Port: :8000
+  PprofPort: :5555
+  Mode: Development
+  ReadTimeout: 5
+  WriteTimeout: 5
+  CtxDefaultTimeout: 12
+  CSRF: true
+  Debug: false
+
+logger:
+  Development: true
+  DisableCaller: false
+  DisableStacktrace: false
+  Encoding: json
+  Level: info
+
+postgres:
+  PostgresqlHost: localhost
+  PostgresqlPort: 5432
+  PostgresqlUser: dev_user
+  PostgresqlPassword: dev_pass
+  PostgresqlDbname: inventory_assets_db
+  PostgresqlSslmode: false

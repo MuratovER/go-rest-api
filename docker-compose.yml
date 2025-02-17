@@ -1,0 +1,13 @@
+services:
+  api:
+    container_name: api
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      PORT: 8000
+
+    restart: always
+

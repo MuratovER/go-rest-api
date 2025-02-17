@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: inventory_assets_db
+    restart: always
+    environment:
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_pass
+      POSTGRES_DB: inventory_assets_db
+      TZ: Europe/Moscow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+       - "5432:5432"
+
+
+volumes:
+  postgres_data:
