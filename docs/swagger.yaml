@@ -1,0 +1,92 @@
+definitions:
+  models.InventoryAsset:
+    properties:
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      name:
+        type: string
+      price:
+        type: integer
+      serial_code:
+        type: string
+      url:
+        type: string
+      username:
+        type: string
+    type: object
+  models.InventoryAssetList:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.InventoryAsset'
+        type: array
+      page:
+        type: integer
+      pages:
+        type: integer
+      size:
+        type: integer
+      total:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: Inventory assets app
+  title: Inventory assets app
+  version: "1.0"
+paths:
+  /api/v1/inventory-assets:
+    get:
+      consumes:
+      - application/json
+      description: Get all invntory assets with pagination
+      parameters:
+      - description: page number
+        format: page
+        in: query
+        name: page
+        type: integer
+      - description: number of elements per page
+        format: size
+        in: query
+        name: size
+        type: integer
+      - description: filter name
+        format: orderBy
+        in: query
+        name: orderBy
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.InventoryAssetList'
+      summary: Get all inventory assets
+      tags:
+      - Inventory Assets
+  /api/v1/inventory-assets/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get by id inventory assets handler
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.InventoryAssetList'
+      summary: Get by id inventory assets
+      tags:
+      - Inventory Assets
+swagger: "2.0"

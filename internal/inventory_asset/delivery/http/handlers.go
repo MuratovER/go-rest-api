@@ -29,6 +29,15 @@ func NewInventoryAssetHandlers(cfg *config.Config, inventoryassetUC inventory_as
 
 }
 
+// GetByID godoc
+// @Summary Get by id inventory assets
+// @Description Get by id inventory assets handler
+// @Tags Inventory Assets
+// @Accept json
+// @Produce json
+// @Param id path int true "id"
+// @Success 200 {object} models.InventoryAssetList
+// @Router /api/v1/inventory-assets/{id} [get]
 func (handlers inventoryAssetHandlers) GetInventoryAssetsById() echo.HandlerFunc {
 	return func(echoContext echo.Context) error {
 		span, ctx := opentracing.StartSpanFromContext(utils.GetRequestCtx(echoContext), "inventoryAssetHandlers.GetByID")
@@ -56,6 +65,17 @@ func (handlers inventoryAssetHandlers) GetInventoryAssetsById() echo.HandlerFunc
 	}
 }
 
+// GetInventoryAssets godoc
+// @Summary Get all inventory assets
+// @Description Get all invntory assets with pagination
+// @Tags Inventory Assets
+// @Accept json
+// @Produce json
+// @Param page query int false "page number" Format(page)
+// @Param size query int false "number of elements per page" Format(size)
+// @Param orderBy query int false "filter name" Format(orderBy)
+// @Success 200 {object} models.InventoryAssetList
+// @Router /api/v1/inventory-assets [get]
 func (handlers inventoryAssetHandlers) GetInventoryAssets() echo.HandlerFunc {
 	return func(echoContext echo.Context) error {
 		span, ctx := opentracing.StartSpanFromContext(utils.GetRequestCtx(echoContext), "inventoryAssetHandlers.GetInventoryAssets")
