@@ -31,6 +31,9 @@ func (s *Server) MapHandlers(e *echo.Echo) error {
 
 	e.Use(mw.RequestLoggerMiddleware)
 
+	docs.SwaggerInfo.Title = "REST API"
+	e.GET("/api/swagger/*", echoSwagger.WrapHandler)
+
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderXRequestID, csrf.CSRFHeader},
@@ -47,6 +50,16 @@ func (s *Server) MapHandlers(e *echo.Echo) error {
 	if s.cfg.Server.Debug {
 		e.Use(mw.DebugMiddleware)
 	}
+
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Skipper: func(c echo.Context) bool {
+			if strings.Contains(c.Request().URL.Path, "swagger") {
+				return true
+			}
+			return false
+		},
+	}))
+
 
 	v1 := e.Group("/api/v1")
 
