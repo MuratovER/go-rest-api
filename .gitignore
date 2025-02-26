@@ -19,6 +19,9 @@
 config/apple_config_files
 /config/configs.env
 /config/config_file.go
+*.env
+.env
+/config/
 
 # Enviroment files
 envs/

@@ -11,7 +11,8 @@ import (
 )
 
 // @title Inventory assets app
-// @BasePath /api/v1
+// @version 1.0
+// @description Inventory assets app
 func main() {
 	log.Println("Starting api server")
 
