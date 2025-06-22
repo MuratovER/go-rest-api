@@ -12,30 +12,35 @@ import (
 	"gorm.io/gorm"
 )
 
-// Inventory Asset Repository
+// InventoryAssetRepo represents the inventory asset repository
 type inventoryAssetRepo struct {
 	db     *gorm.DB
 	logger logger.Logger
 }
 
-// Inventory Asser Repository constructor
+// NewInventoryAssetRepository creates a new inventory asset repository instance
 func NewInventoryAssetRepository(db *gorm.DB, logger logger.Logger) inventory_asset.Repository {
 	return &inventoryAssetRepo{db: db, logger: logger}
 }
 
-// Get inventory assets by id
-func (r *inventoryAssetRepo) GetInventoryAssetsById(ctx context.Context, pq *utils.PaginationQuery, Id int) (*models.InventoryAssetList, error) {
+// GetInventoryAssetsById retrieves inventory assets by ID with pagination
+func (r *inventoryAssetRepo) GetInventoryAssetsById(ctx context.Context, pq *utils.PaginationQuery, id int) (*models.InventoryAssetList, error) {
 	var totalCount int64
-	var inventory_assets []models.InventoryAsset
+	var inventoryAssets []models.InventoryAsset
 
-	if err := r.db.Find(&inventory_assets).Count(&totalCount); err.Error != nil {
-		return nil, errors.Wrap(err.Error, "inventoryAssetRepo.GetInventoryAssets.GetContext.totalCount")
+	// Count total records
+	if err := r.db.Model(&models.InventoryAsset{}).Count(&totalCount).Error; err != nil {
+		return nil, errors.Wrap(err, "inventoryAssetRepo.GetInventoryAssetsById.Count")
 	}
 
-	r.db.Offset(pq.GetOffset()).Limit(pq.GetLimit()).Find(&inventory_assets, Id)
-	if len(inventory_assets) == 0 {
-		r.logger.Error("Inventoy asset with this uid not found.")
-		return nil, errors.New("Inventory_asset with this uid not found")
+	// Find specific record by ID
+	if err := r.db.Where("id = ?", id).Find(&inventoryAssets).Error; err != nil {
+		return nil, errors.Wrap(err, "inventoryAssetRepo.GetInventoryAssetsById.Find")
+	}
+
+	if len(inventoryAssets) == 0 {
+		r.logger.Error("Inventory asset with this id not found")
+		return nil, errors.New("inventory asset with this id not found")
 	}
 
 	return &models.InventoryAssetList{
@@ -43,22 +48,23 @@ func (r *inventoryAssetRepo) GetInventoryAssetsById(ctx context.Context, pq *uti
 		TotalPages: utils.GetTotalPages(totalCount, pq.GetSize()),
 		Page:       pq.GetPage(),
 		Size:       pq.GetSize(),
-		Items:      &inventory_assets,
+		Items:      &inventoryAssets,
 	}, nil
 }
 
-// Get inventory assets
+// GetInventoryAssets retrieves all inventory assets with pagination
 func (r *inventoryAssetRepo) GetInventoryAssets(ctx context.Context, pq *utils.PaginationQuery) (*models.InventoryAssetList, error) {
 	var totalCount int64
-	var inventory_assets []models.InventoryAsset
+	var inventoryAssets []models.InventoryAsset
 
-	if err := r.db.Find(&inventory_assets).Count(&totalCount); err.Error != nil {
-		return nil, errors.Wrap(err.Error, "inventoryAssetRepo.GetInventoryAssets.GetContext.totalCount")
+	// Count total records
+	if err := r.db.Model(&models.InventoryAsset{}).Count(&totalCount).Error; err != nil {
+		return nil, errors.Wrap(err, "inventoryAssetRepo.GetInventoryAssets.Count")
 	}
 
-	err := r.db.Offset(pq.GetOffset()).Limit(pq.GetLimit()).Find(&inventory_assets)
-	if err.Error != nil {
-		return nil, errors.Wrap(err.Error, "inventoryAssetRepo.GetInventoryAssets.QueryxContext")
+	// Get paginated records
+	if err := r.db.Offset(pq.GetOffset()).Limit(pq.GetLimit()).Find(&inventoryAssets).Error; err != nil {
+		return nil, errors.Wrap(err, "inventoryAssetRepo.GetInventoryAssets.Find")
 	}
 
 	return &models.InventoryAssetList{
@@ -66,6 +72,6 @@ func (r *inventoryAssetRepo) GetInventoryAssets(ctx context.Context, pq *utils.P
 		TotalPages: utils.GetTotalPages(totalCount, pq.GetSize()),
 		Page:       pq.GetPage(),
 		Size:       pq.GetSize(),
-		Items:      &inventory_assets,
+		Items:      &inventoryAssets,
 	}, nil
 }

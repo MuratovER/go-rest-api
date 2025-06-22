@@ -10,45 +10,54 @@ import (
 	"os"
 )
 
-// @title Inventory assets app
+// @title Inventory Assets API
 // @version 1.0
-// @description Inventory assets app
+// @description REST API for managing inventory assets
+// @termsOfService http://swagger.io/terms/
+// @contact.name API Support
+// @contact.email support@example.com
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
-	log.Println("Starting api server")
+	log.Println("Starting Inventory Assets API server")
 
+	// Load configuration
 	configPath := utils.GetConfigPath(os.Getenv("config"))
-
 	cfgFile, err := config.LoadConfig(configPath)
 	if err != nil {
-		log.Fatalf("LoadConfig: %v", err)
+		log.Fatalf("Failed to load config: %v", err)
 	}
 
 	cfg, err := config.ParseConfig(cfgFile)
 	if err != nil {
-		log.Fatalf("ParseConfig: %v", err)
+		log.Fatalf("Failed to parse config: %v", err)
 	}
 
+	// Initialize logger
 	appLogger := logger.NewApiLogger(cfg)
-
 	appLogger.InitLogger()
-	appLogger.Infof("AppVersion: %s, LogLevel: %s, Mode: %s", cfg.Server.AppVersion, cfg.Logger.Level, cfg.Server.Mode)
+	appLogger.Infof("AppVersion: %s, LogLevel: %s, Mode: %s",
+		cfg.Server.AppVersion, cfg.Logger.Level, cfg.Server.Mode)
 
+	// Initialize database connection
 	psqlDB, err := postgres.NewPsqlDB(cfg)
 	if err != nil {
-		appLogger.Fatalf("Postgresql init: %s", err)
+		appLogger.Fatalf("Failed to initialize PostgreSQL: %s", err)
 	}
 
-	DB, err := psqlDB.DB()
-
+	db, err := psqlDB.DB()
 	if err != nil {
-		appLogger.Fatalf("Postgresql init: %s", err)
-	} else {
-		appLogger.Infof("Postgres connected, Status: %#v", DB.Stats())
+		appLogger.Fatalf("Failed to get database instance: %s", err)
 	}
-	defer DB.Close()
+	defer db.Close()
 
-	s := server.NewServer(cfg, psqlDB, appLogger)
-	if err = s.Run(); err != nil {
-		log.Fatal(err)
+	appLogger.Infof("PostgreSQL connected, Status: %#v", db.Stats())
+
+	// Initialize and start server
+	server := server.NewServer(cfg, psqlDB, appLogger)
+	if err = server.Run(); err != nil {
+		appLogger.Fatalf("Failed to start server: %v", err)
 	}
 }

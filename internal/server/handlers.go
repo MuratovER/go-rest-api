@@ -60,7 +60,6 @@ func (s *Server) MapHandlers(e *echo.Echo) error {
 		},
 	}))
 
-
 	v1 := e.Group("/api/v1")
 
 	health := v1.Group("/health")
