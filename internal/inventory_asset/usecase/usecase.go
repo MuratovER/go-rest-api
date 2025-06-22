@@ -12,32 +12,46 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Inventory Asset UseCase
+// inventoryAssetUC represents the inventory asset use case
 type inventoryAssetUC struct {
 	cfg                *config.Config
 	inventoryAssetRepo inventory_asset.Repository
 	logger             logger.Logger
 }
 
-// Inventory Asset UseCase constructor
+// NewInventoryAssetUseCase creates a new inventory asset use case instance
 func NewInventoryAssetUseCase(cfg *config.Config, inventoryAssetRepo inventory_asset.Repository, logger logger.Logger) *inventoryAssetUC {
-	return &inventoryAssetUC{cfg: cfg, inventoryAssetRepo: inventoryAssetRepo, logger: logger}
+	return &inventoryAssetUC{
+		cfg:                cfg,
+		inventoryAssetRepo: inventoryAssetRepo,
+		logger:             logger,
+	}
 }
 
-// Get inventory assets by id
-func (u *inventoryAssetUC) GetInventoryAssetsById(ctx context.Context, pq *utils.PaginationQuery, Id int) (*models.InventoryAssetList, error) {
-	n, err := u.inventoryAssetRepo.GetInventoryAssetsById(ctx, pq, Id)
-	if err != nil {
+// GetInventoryAssetsById retrieves inventory assets by ID with pagination
+func (u *inventoryAssetUC) GetInventoryAssetsById(ctx context.Context, pq *utils.PaginationQuery, id int) (*models.InventoryAssetList, error) {
+	u.logger.Infof("Getting inventory asset by ID: %d", id)
 
-		return nil, httpErrors.NewInventoryAssetNotFoundError(errors.WithMessage(err, "Inventoy asset with this uid not found."))
+	result, err := u.inventoryAssetRepo.GetInventoryAssetsById(ctx, pq, id)
+	if err != nil {
+		u.logger.Errorf("Failed to get inventory asset by ID %d: %v", id, err)
+		return nil, httpErrors.NewInventoryAssetNotFoundError(errors.WithMessage(err, "inventory asset with this id not found"))
 	}
 
-	return n, nil
+	u.logger.Infof("Successfully retrieved inventory asset by ID: %d", id)
+	return result, nil
 }
 
-// Get inventory assets
+// GetInventoryAssets retrieves all inventory assets with pagination
 func (u *inventoryAssetUC) GetInventoryAssets(ctx context.Context, pq *utils.PaginationQuery) (*models.InventoryAssetList, error) {
+	u.logger.Infof("Getting inventory assets with pagination: page=%d, size=%d", pq.GetPage(), pq.GetSize())
 
-	return u.inventoryAssetRepo.GetInventoryAssets(ctx, pq)
+	result, err := u.inventoryAssetRepo.GetInventoryAssets(ctx, pq)
+	if err != nil {
+		u.logger.Errorf("Failed to get inventory assets: %v", err)
+		return nil, errors.Wrap(err, "failed to get inventory assets")
+	}
 
+	u.logger.Infof("Successfully retrieved %d inventory assets", len(*result.Items))
+	return result, nil
 }
